@@ -32,20 +32,34 @@ router.get('/users', function(req, res, next) {
 });
 
 router.post('/users', function(req, res, next) {
-  Users().insert(req.body).then((data) => {
-    res.status(200).send({
-      status: 'success',
-      message: 'User added successfully.'
-    });
+  Users().insert(req.body).returning('*').then((data) => {
+    if (data[0]) {
+      res.status(200).send({
+        status: 'success',
+        message: 'User added successfully.'
+      });
+    } else {
+      res.status(400).send({
+        status: 'error',
+        message: 'User add error. Ensure data is complete.'
+      });
+    }
   });
 });
 
 router.get('/scores', function(req, res, next) {
   knex.raw("SELECT CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id;")
   .then((data) => {
-    res.status(200).send({
-      scores: data.rows
-    });
+    if (data.rows.length) {
+      res.status(200).send({
+        scores: data.rows
+      });
+    } else {
+      res.status(400).send({
+        status: 'error',
+        message: 'No games found. Please try again.'
+      });
+    }
   });
 });
 
