@@ -48,7 +48,7 @@ router.post('/users', function(req, res, next) {
 });
 
 router.get('/scores', function(req, res, next) {
-  knex.raw("SELECT CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id;")
+  knex.raw("SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id;")
   .then((data) => {
     if (data.rows.length) {
       res.status(200).send({
@@ -65,7 +65,7 @@ router.get('/scores', function(req, res, next) {
 
 router.post('/scores', function(req, res, next) {
   knex.raw(
-    "SELECT CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, "
+    "SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, "
     + "CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount "
     + "FROM scores a "
     + "INNER JOIN users b ON a.p1_id = b.id "
