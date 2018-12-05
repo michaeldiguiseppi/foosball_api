@@ -48,9 +48,17 @@ router.post('/users', function(req, res, next) {
     });
 });
 
-router.get('/scores/:game_type', function(req, res, next) {
+router.get('/scores/:game_type?', function(req, res, next) {
     const game_type = req.params.game_type;
-    knex.raw(`SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount, a.game_type FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id WHERE a.game_type = '${game_type}';`)
+    let query = '';
+    
+    if (game_type) {
+        query = `SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount, a.game_type FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id WHERE a.game_type = '${game_type}';`
+    } else {
+        query = 'SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount, a.game_type FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id;'
+    }
+
+    knex.raw(query)
         .then((data) => {
             if (data.rows.length) {
                 res.status(200).send({
