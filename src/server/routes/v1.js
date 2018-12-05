@@ -48,8 +48,9 @@ router.post('/users', function(req, res, next) {
     });
 });
 
-router.get('/scores', function(req, res, next) {
-    knex.raw("SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id;")
+router.get('/scores/:game_type', function(req, res, next) {
+    const game_type = req.params.game_type;
+    knex.raw(`SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount, a.game_type FROM scores a INNER JOIN users b ON a.p1_id = b.id INNER JOIN users c ON a.p2_id = c.id WHERE a.game_type = '${game_type}';`)
         .then((data) => {
             if (data.rows.length) {
                 res.status(200).send({
@@ -67,7 +68,7 @@ router.get('/scores', function(req, res, next) {
 router.post('/scores', function(req, res, next) {
     knex.raw(
             "SELECT a.id, CONCAT(b.first_name, ' ', b.last_name) AS p1_name, a.p1_score, " +
-            "CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount " +
+            "CONCAT(c.first_name, ' ', c.last_name) AS p2_name, a.p2_score, a.win_by_amount, a.game_type " +
             "FROM scores a " +
             "INNER JOIN users b ON a.p1_id = b.id " +
             "INNER JOIN users c ON a.p2_id = c.id " +
@@ -89,7 +90,7 @@ router.post('/scores', function(req, res, next) {
 });
 
 router.post('/scores/add', function(req, res, next) {
-    if (!req.body.p1_id || !req.body.p2_id || !req.body.p1_score || !req.body.p2_score || !req.body.win_by_amount) {
+    if (!req.body.p1_id || !req.body.p2_id || !req.body.p1_score || !req.body.p2_score || !req.body.win_by_amount || !req.body.game_type) {
         res.status(400).send({
             status: 'error',
             message: 'Score add error. Please make sure the data is complete.'
