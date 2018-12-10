@@ -45,7 +45,7 @@ router.post('/users', function(req, res, next) {
                 message: 'User add error. Ensure data is complete.'
             });
         }
-    });
+    }).catch((err) => console.log(err));
 });
 
 router.get('/scores/:game_type?', function(req, res, next) {
